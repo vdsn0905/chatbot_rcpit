@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RCPIT Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .chat-container {
+      width: 400px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .chat-box {
+      flex: 1;
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: #fafafa;
+    }
+    .message {
+      margin: 5px 0;
+      padding: 8px 12px;
+      border-radius: 6px;
+      max-width: 75%;
+      word-wrap: break-word;
+    }
+    .user {
+      background: #d0e7ff;
+      text-align: right;
+      margin-left: auto;
+    }
+    .bot {
+      background: #eee;
+      text-align: left;
+      margin-right: auto;
+    }
+    .input-container {
+      display: flex;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px 0 0 6px;
+      outline: none;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      background: #007bff;
+      color: #fff;
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <h2>RCPIT Chatbot</h2>
+    <div class="chat-box" id="chat-box">
+      <div class="message bot">Hello! 👋 I’m RCPIT Chatbot. How can I help you?</div>
+    </div>
+    <div class="input-container">
+      <input type="text" id="user-input" placeholder="Type your question..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      let input = document.getElementById("user-input");
+      let chatBox = document.getElementById("chat-box");
+
+      if (!input.value.trim()) return;
+
+      // Show user message
+      let userMsg = document.createElement("div");
+      userMsg.className = "message user";
+      userMsg.textContent = input.value;
+      chatBox.appendChild(userMsg);
+
+      // Call backend
+      let response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: input.value })
+      });
+
+      let data = await response.json();
+
+      // Show bot reply
+      let botMsg = document.createElement("div");
+      botMsg.className = "message bot";
+      botMsg.textContent = data.answer;
+      chatBox.appendChild(botMsg);
+
+      // Clear input & scroll down
+      input.value = "";
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Press Enter to send
+    document.getElementById("user-input").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>
